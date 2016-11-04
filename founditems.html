@@ -1,0 +1,9 @@
+<ul>
+	<li ng-repeat="item in narrowctrl.found">
+		{{item.name}}, {{item.short_name}}, {{item.description}}
+	    <button class="btn btn-primary" ng-click="narrowctrl.onRemove({index: $index});">Don't want this one</button>
+	</li>
+</ul>
+<div class="error" ng-if="narrowctrl.found.length === 0 || narrowctrl.searcherror">
+	Nothing found
+</div>

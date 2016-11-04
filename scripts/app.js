@@ -4,17 +4,50 @@
 angular.module('NarrowItDownApp', [])
 	.controller('NarrowItDownController', NarrowItDownController)
 	.service('MenuSearchService', MenuSearchService)
-	.constant('ApiBasePath', "https://davids-restaurant.herokuapp.com/menu_items.json");
+	.constant('ApiBasePath', "https://davids-restaurant.herokuapp.com/menu_items.json")
+	.directive('foundItems', foundItemsDirective);
+
+	function foundItemsDirective() {
+		var ddo = {
+			templateUrl: 'founditems.html',
+			scope: {
+				found: '<',
+				searcherror: '<',
+				onRemove: '&'	
+			},
+			controller: NarrowItDownController,
+			controllerAs: 'narrowctrl',
+			bindToController: true
+		}
+		return ddo;
+	}
 
 	NarrowItDownController.$inject = ['MenuSearchService'];
 	function NarrowItDownController(MenuSearchService) {
 		var narrow = this;
-		narrow.narrowsearch = function (searchTerm) {
-			narrow.found = MenuSearchService.getMatchedMenuItems(searchTerm);
+		narrow.searcherror = false;
+		narrow.narrowsearch = function (searchItem) {
+			console.log(searchItem);
+			if( searchItem === undefined){
+				narrow.searcherror = true;
+			}
+			else {
+				narrow.searcherror = false;
+			var promise = MenuSearchService.getMatchedMenuItems(searchItem);
+			
+			promise.then(function (response) {
+				narrow.found = response;
+				console.log(narrow.found);
+			})
+			.catch(function (error) {
+				console.log("Error: ", error.message);
+			})
+			}
+			
+		}
 
-			// promise.then(function (response) {
-			// 	// console.log(response.data);
-			// })
+		narrow.removeItem = function (itemIndex) {
+			narrow.found.splice(itemIndex, 1);
 		}
 	}
 
@@ -22,26 +55,23 @@ angular.module('NarrowItDownApp', [])
 	function MenuSearchService($http, ApiBasePath) {
 		var service = this
 
-		service.getMatchedMenuItems = function (searchTerm) {
-			var response = $http({
+		service.getMatchedMenuItems = function (searchItem) {
+			var promise = $http({
 				method: "GET",
 				url: ApiBasePath
 			})
 			 .then(function (response) {
 			 	var foundItems = [];
-			 	console.log(searchTerm);
-			 	console.log(response.data.menu_items.length);
-			 	console.log(response.data.menu_items[0]);
 			 	for (var i = 0; i < response.data.menu_items.length; i++) {
 			 		var desc = response.data.menu_items[i].description;
-			 		if (desc.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+			 		if (desc.toLowerCase().indexOf(searchItem.toLowerCase()) !== -1) {
 			 			foundItems.push(response.data.menu_items[i]);
 			 		}
 			 	}
 			 	console.log(foundItems);
-			 	// return response;
+			 	return foundItems;
 			 })
-			
+			return promise;	
 		}
 	}
 

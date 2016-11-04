@@ -16,12 +16,14 @@
     <div class="form-group narrow-button">
       <button class="btn btn-primary" ng-click="narrowctrl.narrowsearch(narrowctrl.searchItem)">Narrow It Down For Me!</button>
     </div>
-
+  
+    <br><br>
     <!-- found-items should be implemented as a component -->
-    <found-items found-items="...." on-remove="...."></found-items>
+       <found-items found="narrowctrl.found" on-remove="narrowctrl.removeItem(index)" searcherror="narrowctrl.searcherror"></found-items>
   </div>
 
 <script type="text/javascript" src="scripts/angular.min.js"></script>
 <script type="text/javascript" src="scripts/app.js"></script>
 </body>
 </html>
+
